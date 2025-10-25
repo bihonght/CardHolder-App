@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    environment:
+      PORT: "8080"
+      DB_URL: "jdbc:postgresql://db:5432/carddb"
+      DB_USER: "carduser"
+      DB_PASS: "cardpass"
+      # Base64-encoded 32 bytes (256-bit) AES key. Example only; replace in real env.
+      AES_KEY_B64: "S7Zfgl55S54/6igweY7DlwIaTRppbc6W/+1wJRp+ino="
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: carddb
+      POSTGRES_USER: carduser
+      POSTGRES_PASSWORD: cardpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

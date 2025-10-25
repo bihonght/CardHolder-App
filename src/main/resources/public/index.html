@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Card Payment Demo</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>Cardholder Vault</h1>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Add Card</h2>
+            <form method="post" action="/cards" autocomplete="off">
+                <label>Cardholder Name</label>
+                <input name="name" placeholder="Jane Doe" required>
+                <label>PAN (digits only)</label>
+                <!-- PAN: 12–19 digits -->
+                <input name="pan" placeholder="1234123412341234"
+                       required pattern="[0-9]{12,19}" inputmode="numeric" autocomplete="off">
+
+                <button type="submit">Save</button>
+            </form>
+            <p class="hint">We never store or log plaintext PAN. Encrypted with AES-256 + random IV.</p>
+        </div>
+
+        <div class="card">
+            <h2>Search by Last 4</h2>
+            <form method="get" action="/cards">
+                <label>Last 4 digits</label>
+                <!-- Last4: exactly 4 digits -->
+                <input name="last4" placeholder="1234"
+                       required pattern="[0-9]{4}" maxlength="4" inputmode="numeric" autocomplete="off">
+                <button type="submit">Search</button>
+            </form>
+            <p class="hint">Results show Name, Masked PAN, and Created Time.</p>
+        </div>
+    </div>
+
+    <div id="flash"></div>
+</div>
+<script>
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('saved') === '1') {
+        const last4 = url.searchParams.get('last4') || '****';
+        const el = document.getElementById('flash');
+        el.textContent = `Saved card ending with ${last4}.`;
+        el.className = 'flash';
+        url.searchParams.delete('saved'); url.searchParams.delete('last4');
+        history.replaceState({}, '', url.pathname);
+    }
+</script>
+</body>
+</html>
