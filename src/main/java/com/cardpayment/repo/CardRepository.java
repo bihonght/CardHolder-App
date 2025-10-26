@@ -12,20 +12,16 @@ import com.cardpayment.model.CardRecord;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 
+import com.cardpayment.sql.CardSQL;
+
 public class CardRepository {
 
     public void insertCard(String name, byte[] panCipher, byte[] iv, String plaintextPan) throws Exception {
         String last4 = plaintextPan.substring(plaintextPan.length() - 4);
         String panSha256 = sha256Hex(plaintextPan);
 
-        String sql = """
-            INSERT INTO cards(name, pan_enc, pan_iv, pan_sha256, last4)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT (pan_sha256) DO NOTHING
-            """;
-
         try (Connection c = Database.get();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+             PreparedStatement ps = c.prepareStatement(CardSQL.INSERT_CARD)) {
             ps.setString(1, name);
             ps.setBytes(2, panCipher);
             ps.setBytes(3, iv);
@@ -36,16 +32,9 @@ public class CardRepository {
     }
 
     public List<CardRecord> findByLast4(String last4) throws Exception {
-        String sql = """
-            SELECT name, last4, created_at
-            FROM cards
-            WHERE last4 = ?
-            ORDER BY created_at DESC
-            LIMIT 200
-            """;
         List<CardRecord> out = new ArrayList<>();
         try (Connection c = Database.get();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+             PreparedStatement ps = c.prepareStatement(CardSQL.FIND_BY_LAST4)) {
             ps.setString(1, last4);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
