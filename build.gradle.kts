@@ -14,6 +14,8 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.8")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
+    testImplementation("org.testcontainers:junit-jupiter:1.20.2")
+    testImplementation("org.testcontainers:postgresql:1.20.2")
 }
 
 application {
@@ -24,4 +26,13 @@ tasks.test { useJUnitPlatform() }
 
 tasks.withType<ShadowJar>().configureEach {
     archiveClassifier.set("all")
+}
+
+tasks.withType<Test> {
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = true
+    }
+//    outputs.upToDateWhen { false }
 }

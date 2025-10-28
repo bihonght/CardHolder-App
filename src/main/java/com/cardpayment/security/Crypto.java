@@ -29,7 +29,10 @@ public final class Crypto {
     }
 
     private static byte[] keyFromEnv() {
-        String b64 = System.getenv("AES_KEY_B64");
+        String b64 = System.getProperty("AES_KEY_B64");
+        if (b64 == null || b64.isEmpty()) {
+            b64 = System.getenv("AES_KEY_B64");
+        }
         if (b64 == null || b64.isEmpty()) {
             throw new IllegalStateException("AES_KEY_B64 not set (base64-encoded 32 bytes required).");
         }

@@ -13,11 +13,7 @@ import java.util.stream.Collectors;
 public final class Database {
     private static HikariDataSource ds;
 
-    public static void init() {
-        String url  = getenvOr("DB_URL",  "jdbc:postgresql://localhost:5432/carddb");
-        String user = getenvOr("DB_USER", "carduser");
-        String pass = getenvOr("DB_PASS", "cardpass");
-
+    public static void init(String url, String user, String pass) {
         HikariConfig cfg = new HikariConfig();
         cfg.setJdbcUrl(url);
         cfg.setUsername(user);
@@ -26,6 +22,14 @@ public final class Database {
         cfg.setMinimumIdle(1);
         cfg.setPoolName("cardpayment-pool");
         ds = new HikariDataSource(cfg);
+    }
+
+    // keep the original init() but forward to the overload:
+    public static void init() {
+        String url  = getenvOr("DB_URL",  "jdbc:postgresql://localhost:5432/carddb");
+        String user = getenvOr("DB_USER", "carduser");
+        String pass = getenvOr("DB_PASS", "cardpass");
+        init(url, user, pass);
     }
 
     public static Connection get() throws Exception {
